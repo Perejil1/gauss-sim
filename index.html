@@ -276,7 +276,24 @@
                 >Mostrar líneas de campo</label
               >
             </div>
+            <div class="chk">
+              <input id="fl" type="checkbox" checked /><label
+                for="fl"
+                style="margin: 0; font-weight: 400"
+                >Animar el flujo del campo</label
+              >
+            </div>
+            <label for="sp">Velocidad de las animaciones</label>
+            <input
+              id="sp"
+              type="range"
+              min="0.25"
+              max="2"
+              step="0.25"
+              value="1"
+            />
             <button id="ctr" type="button">Centrar sobre el imán</button>
+            <button id="au" type="button">▶ Recorrido automático</button>
           </div>
           <div class="card">
             <h2>Flujo magnético (unidades arbitrarias)</h2>
@@ -352,6 +369,26 @@
           cambias la posición, el radio, el modo o el tema, no en un bucle
           continuo.
         </p>
+        <h3>6. Animaciones</h3>
+        <p>
+          <b>Flujo del campo:</b> las líneas se dibujan con trazos que se
+          desplazan en el sentido del campo, del polo norte al sur por fuera del
+          imán (o hacia afuera en el monopolo). Solo indica la dirección, no la
+          intensidad. Se puede desactivar, y viene apagada si tu dispositivo
+          pide reducir el movimiento. El deslizador de velocidad regula tanto el
+          flujo como el recorrido automático.
+        </p>
+        <p>
+          <b>Recorrido automático:</b> la esfera cambia de posición y de radio
+          sola, entrando y saliendo de la zona del imán. Al cruzar el polo, el
+          flujo se muestra como “—” porque allí el campo es infinito. Arrastrar
+          la esfera, mover el deslizador o pulsar “Centrar” detiene el
+          recorrido.
+        </p>
+        <p>
+          El flujo solo se recalcula cuando la esfera cambia; con el simple
+          flujo de las líneas el cálculo no se repite.
+        </p>
         <h3>Limitaciones</h3>
         <p>
           Es un dipolo puntual, no un imán de barra real con tamaño y material.
@@ -373,6 +410,14 @@
         OY = 0,
         dpr = 1,
         drag = false;
+      let phase = 0,
+        tA = 0,
+        last = 0,
+        raf = 0,
+        auto = false;
+      const reduce = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
 
       const css = (n) =>
         getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -440,6 +485,10 @@
         cx.lineWidth = 2;
         cx.strokeStyle = css("--line");
         cx.globalAlpha = 0.85;
+        if ($("fl").checked) {
+          cx.setLineDash([9, 13]);
+          cx.lineDashOffset = -phase * 0.6;
+        }
         if (mode === "dip") {
           for (const L of [0.5, 0.9, 1.4, 2.2, 3.2, 4.5])
             for (const s of [1, -1]) {
@@ -462,6 +511,7 @@
             cx.stroke();
           }
         }
+        cx.setLineDash([]);
         cx.globalAlpha = 1;
       }
 
@@ -517,22 +567,27 @@
         cx.fill();
       }
 
-      function draw() {
+      function draw(upd = true) {
         cx.setTransform(dpr, 0, 0, dpr, 0, 0);
         cx.clearRect(0, 0, W, H);
         if ($("ln").checked) drawLines();
         drawSource();
         drawRing();
-        update();
+        if (upd) update();
       }
 
       function update() {
-        const [o, i] = flux(C[0], C[1], R),
-          dist = Math.hypot(C[0], C[1]),
-          enc = dist < R;
-        $("fo").textContent = fmt(o);
-        $("fi").textContent = fmt(i);
-        $("fn").textContent = fmt(o + i);
+        const dist = Math.hypot(C[0], C[1]),
+          enc = dist < R,
+          sing = Math.abs(dist - R) < 0.08;
+        if (sing) {
+          $("fo").textContent = $("fi").textContent = $("fn").textContent = "—";
+        } else {
+          const [o, i] = flux(C[0], C[1], R);
+          $("fo").textContent = fmt(o);
+          $("fi").textContent = fmt(i);
+          $("fn").textContent = fmt(o + i);
+        }
         $("radv").textContent = R.toFixed(2).replace(".", ",");
         let m;
         if (mode === "dip")
@@ -543,7 +598,10 @@
           m = enc
             ? "Encierra una carga magnética hipotética: Φ neto = 4π ≈ 12,566. Un monopolo no se ha observado nunca."
             : "No encierra la carga: Φ neto ≈ 0.";
-        if (Math.abs(dist - R) < 0.12)
+        if (sing)
+          m +=
+            " La superficie pasa justo por el polo: ahí el campo es infinito y el flujo no está definido.";
+        else if (Math.abs(dist - R) < 0.25)
           m +=
             " La superficie pasa muy cerca del polo y aumenta el error numérico.";
         $("msg").textContent = m;
@@ -557,6 +615,7 @@
         draw();
       }
       cv.addEventListener("pointerdown", (e) => {
+        stopAuto();
         drag = true;
         cv.setPointerCapture(e.pointerId);
         setCenter(e);
@@ -581,6 +640,7 @@
         }
       });
       $("rad").addEventListener("input", (e) => {
+        stopAuto();
         R = +e.target.value;
         draw();
       });
@@ -588,8 +648,12 @@
         mode = e.target.value;
         draw();
       });
-      $("ln").addEventListener("change", draw);
+      $("ln").addEventListener("change", () => {
+        draw();
+        ensureLoop();
+      });
       $("ctr").addEventListener("click", () => {
+        stopAuto();
         C = [0, 0];
         draw();
       });
@@ -601,7 +665,7 @@
       }
       function applyBtn() {
         const d = isDark();
-        $("th").textContent = d ? "☀️" : "🌙";
+        $("th").textContent = d ? "☀️ Modo claro" : "🌙 Modo oscuro";
         $("th").setAttribute("aria-pressed", String(d));
       }
       try {
@@ -622,8 +686,54 @@
         applyBtn();
         draw();
       });
+      // Animaciones: el bucle solo corre si hay flujo animado o recorrido automático.
+      function needsLoop() {
+        return auto || ($("fl").checked && $("ln").checked);
+      }
+      function loop(ts) {
+        const dt = Math.min(0.05, last ? (ts - last) / 1000 : 0);
+        last = ts;
+        const k = +$("sp").value;
+        phase += dt * 60 * k;
+        if (auto) {
+          tA += dt * k;
+          C = [3.4 * Math.sin(0.35 * tA), 1.5 * Math.sin(0.6 * tA)];
+          R = 1.4 + 0.4 * Math.sin(0.9 * tA);
+          $("rad").value = R;
+        }
+        draw(auto);
+        raf = needsLoop() ? requestAnimationFrame(loop) : 0;
+        if (!raf) last = 0;
+      }
+      function ensureLoop() {
+        if (!raf && needsLoop()) {
+          last = 0;
+          raf = requestAnimationFrame(loop);
+        }
+      }
+      function stopAuto() {
+        auto = false;
+        $("au").textContent = "▶ Recorrido automático";
+      }
+      $("fl").addEventListener("change", () => {
+        draw(false);
+        ensureLoop();
+      });
+      $("au").addEventListener("click", () => {
+        if (auto) {
+          stopAuto();
+          draw();
+          return;
+        }
+        auto = true;
+        tA = 0;
+        $("au").textContent = "⏸ Detener recorrido";
+        ensureLoop();
+      });
+      if (reduce) $("fl").checked = false;
       applyBtn();
       resize();
+      ensureLoop();
     </script>
   </body>
 </html>
