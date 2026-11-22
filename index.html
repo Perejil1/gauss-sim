@@ -63,129 +63,144 @@
           sans-serif;
       }
       main {
-        max-width: 1100px;
+        max-width: 1180px;
         margin: 0 auto;
-        padding: 20px 16px 32px;
+        padding: 16px 16px 32px;
       }
       .top {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: flex-start;
         gap: 12px;
-      }
-      #th {
-        width: auto;
-        margin: 0;
-        white-space: nowrap;
+        margin-bottom: 6px;
       }
       h1 {
-        font-size: clamp(22px, 4vw, 32px);
-        margin: 0 0 6px;
+        font-size: clamp(20px, 3.6vw, 30px);
+        line-height: 1.2;
+        margin: 0;
       }
       .lead {
         color: var(--mut);
-        margin: 0 0 18px;
+        margin: 0 0 14px;
+        max-width: 70ch;
       }
       .wrap {
         display: grid;
-        grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
+        grid-template-columns: minmax(0, 1fr) 330px;
         gap: 16px;
+        align-items: start;
+        margin-bottom: 16px;
       }
-      @media (max-width: 800px) {
+      aside {
+        position: sticky;
+        top: 12px;
+      }
+      @media (max-width: 860px) {
         .wrap {
           grid-template-columns: 1fr;
         }
+        aside {
+          position: static;
+        }
+      }
+      .stage {
+        background: var(--card);
+        border-radius: 16px;
+        padding: 10px;
       }
       canvas {
         width: 100%;
         aspect-ratio: 16/10;
         display: block;
-        background: var(--card);
-        border-radius: 16px;
+        background: var(--bg);
+        border-radius: 12px;
         touch-action: none;
         cursor: grab;
       }
       canvas:active {
         cursor: grabbing;
       }
-      .card {
-        background: var(--card);
-        border-radius: 16px;
-        padding: 14px 16px;
-        margin-bottom: 12px;
+      canvas:focus-visible,
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid var(--acc);
+        outline-offset: 2px;
       }
-      .card h2 {
-        font-size: 15px;
-        margin: 0 0 8px;
-        color: var(--acc);
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .m {
+        background: var(--bg);
+        border-radius: 12px;
+        padding: 8px 6px;
+        text-align: center;
+      }
+      .m small {
+        display: block;
+        color: var(--mut);
+        font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 0.04em;
       }
-      label {
-        display: block;
-        margin: 8px 0 2px;
-        font-weight: 600;
-      }
-      select,
-      input[type="range"],
-      button {
-        width: 100%;
-        font: inherit;
-      }
-      select,
-      button {
-        padding: 8px 10px;
-        border-radius: 10px;
-        border: 1px solid var(--mut);
-        background: var(--bg);
-        color: var(--fg);
-      }
-      button {
-        cursor: pointer;
-        margin-top: 10px;
-        font-weight: 600;
-      }
-      .chk {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        margin-top: 10px;
-        font-weight: 400;
-      }
-      .chk input {
-        width: auto;
-      }
-      .num {
-        display: flex;
-        justify-content: space-between;
+      .m b {
+        font-size: clamp(17px, 3.6vw, 24px);
         font-variant-numeric: tabular-nums;
-        font-size: 18px;
-        padding: 2px 0;
       }
-      .num b.o {
+      .m.o b {
         color: var(--out);
       }
-      .num b.i {
+      .m.i b {
         color: var(--in);
       }
-      .net {
-        border-top: 1px solid var(--mut);
-        margin-top: 6px;
-        padding-top: 6px;
-        font-weight: 700;
+      .gauge {
+        position: relative;
+        height: 10px;
+        border-radius: 6px;
+        background: var(--bg);
+        margin: 10px 2px 6px;
+        overflow: hidden;
+      }
+      .gauge i {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        transition: width 0.15s;
+      }
+      #gi {
+        right: 50%;
+        background: var(--in);
+      }
+      #go {
+        left: 50%;
+        background: var(--out);
+      }
+      .gauge::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        margin-left: -1px;
+        background: var(--fg);
       }
       #msg {
-        margin: 8px 0 0;
+        margin: 6px 2px;
         color: var(--mut);
         font-size: 15px;
+        min-height: 3em;
       }
       .leg {
         display: flex;
-        gap: 14px;
+        gap: 6px 14px;
         flex-wrap: wrap;
         color: var(--mut);
-        font-size: 14px;
-        margin-top: 8px;
+        font-size: 13px;
+        margin: 4px 2px 2px;
       }
       .leg i {
         display: inline-block;
@@ -195,8 +210,72 @@
         margin-right: 5px;
         vertical-align: -1px;
       }
+      .card {
+        background: var(--card);
+        border-radius: 16px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+      }
+      .card h2 {
+        font-size: 13px;
+        margin: 0 0 8px;
+        color: var(--acc);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      label {
+        display: block;
+        margin: 6px 0 2px;
+        font-weight: 600;
+      }
+      input[type="range"],
+      button {
+        width: 100%;
+        font: inherit;
+      }
+      button {
+        padding: 9px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--mut);
+        background: var(--bg);
+        color: var(--fg);
+        cursor: pointer;
+        margin-top: 10px;
+        font-weight: 600;
+      }
+      #th {
+        width: auto;
+        margin: 0;
+        white-space: nowrap;
+      }
+      .seg {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        background: var(--bg);
+        padding: 4px;
+        border-radius: 12px;
+      }
+      .seg button {
+        margin: 0;
+        border: 0;
+        background: transparent;
+      }
+      .seg button[aria-pressed="true"] {
+        background: var(--acc);
+        color: var(--bg);
+      }
+      .chk {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 8px;
+      }
+      .chk input {
+        width: auto;
+      }
       details.how {
-        margin-top: 16px;
+        margin-top: 4px;
       }
       .how summary {
         cursor: pointer;
@@ -230,37 +309,46 @@
         <button id="th" type="button" aria-pressed="false"></button>
       </div>
       <p class="lead">
-        Arrastra la superficie gaussiana (esfera) sobre el imán y cambia su
-        radio. Siempre que el campo sea el de un imán, el flujo neto es cero.
+        Arrastra la superficie gaussiana sobre el imán y cambia su radio: con un
+        imán, el flujo neto siempre es cero.
       </p>
       <div class="wrap">
-        <div>
+        <section class="stage">
           <canvas
             id="cv"
             tabindex="0"
             aria-label="Campo magnético de un imán y superficie gaussiana arrastrable"
           ></canvas>
-          <div class="leg">
-            <span
-              ><i style="background: var(--out)"></i>B sale de la
-              superficie</span
-            >
-            <span
-              ><i style="background: var(--in)"></i>B entra a la
-              superficie</span
-            >
-            <span><i style="background: var(--line)"></i>líneas de campo</span>
+          <div class="metrics">
+            <div class="m o"><small>Φ sale</small><b id="fo"></b></div>
+            <div class="m i"><small>Φ entra</small><b id="fi"></b></div>
+            <div class="m"><small>Φ neto</small><b id="fn"></b></div>
           </div>
-        </div>
-        <div>
+          <div class="gauge" aria-hidden="true">
+            <i id="gi"></i><i id="go"></i>
+          </div>
+          <p id="msg"></p>
+          <div class="leg">
+            <span><i style="background: var(--out)"></i>B sale</span>
+            <span><i style="background: var(--in)"></i>B entra</span>
+            <span><i style="background: var(--line)"></i>líneas de campo</span>
+            <span>Arrastra la esfera o usa las flechas</span>
+          </div>
+        </section>
+        <aside>
           <div class="card">
-            <h2>Controles</h2>
-            <label for="mode">Fuente del campo</label>
-            <select id="mode">
-              <option value="dip">Imán de barra (dipolo)</option>
-              <option value="mono">Monopolo hipotético</option>
-            </select>
-            <label for="rad">Radio de la esfera: <span id="radv"></span></label>
+            <h2>Fuente del campo</h2>
+            <div class="seg">
+              <button type="button" data-mode="dip" aria-pressed="true">
+                Imán (dipolo)</button
+              ><button type="button" data-mode="mono" aria-pressed="false">
+                Monopolo
+              </button>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Superficie gaussiana</h2>
+            <label for="rad">Radio: <span id="radv"></span></label>
             <input
               id="rad"
               type="range"
@@ -276,14 +364,18 @@
                 >Mostrar líneas de campo</label
               >
             </div>
-            <div class="chk">
+            <button id="ctr" type="button">Centrar sobre el imán</button>
+          </div>
+          <div class="card">
+            <h2>Animación</h2>
+            <div class="chk" style="margin-top: 0">
               <input id="fl" type="checkbox" checked /><label
                 for="fl"
                 style="margin: 0; font-weight: 400"
                 >Animar el flujo del campo</label
               >
             </div>
-            <label for="sp">Velocidad de las animaciones</label>
+            <label for="sp">Velocidad</label>
             <input
               id="sp"
               type="range"
@@ -292,17 +384,9 @@
               step="0.25"
               value="1"
             />
-            <button id="ctr" type="button">Centrar sobre el imán</button>
             <button id="au" type="button">▶ Recorrido automático</button>
           </div>
-          <div class="card">
-            <h2>Flujo magnético (unidades arbitrarias)</h2>
-            <div class="num"><span>Φ sale</span><b class="o" id="fo"></b></div>
-            <div class="num"><span>Φ entra</span><b class="i" id="fi"></b></div>
-            <div class="num net"><span>Φ neto</span><b id="fn"></b></div>
-            <p id="msg"></p>
-          </div>
-        </div>
+        </aside>
       </div>
       <details class="card how">
         <summary>¿Cómo funciona el simulador?</summary>
@@ -576,17 +660,24 @@
         if (upd) update();
       }
 
+      function setGauge(o, n) {
+        const m = Math.max(o, n) || 1;
+        $("go").style.width = (o / m) * 50 + "%";
+        $("gi").style.width = (n / m) * 50 + "%";
+      }
       function update() {
         const dist = Math.hypot(C[0], C[1]),
           enc = dist < R,
           sing = Math.abs(dist - R) < 0.08;
         if (sing) {
           $("fo").textContent = $("fi").textContent = $("fn").textContent = "—";
+          setGauge(0, 0);
         } else {
           const [o, i] = flux(C[0], C[1], R);
           $("fo").textContent = fmt(o);
           $("fi").textContent = fmt(i);
           $("fn").textContent = fmt(o + i);
+          setGauge(o, -i);
         }
         $("radv").textContent = R.toFixed(2).replace(".", ",");
         let m;
@@ -644,10 +735,15 @@
         R = +e.target.value;
         draw();
       });
-      $("mode").addEventListener("change", (e) => {
-        mode = e.target.value;
-        draw();
-      });
+      document.querySelectorAll(".seg button").forEach((b) =>
+        b.addEventListener("click", () => {
+          mode = b.dataset.mode;
+          document
+            .querySelectorAll(".seg button")
+            .forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+          draw();
+        }),
+      );
       $("ln").addEventListener("change", () => {
         draw();
         ensureLoop();
