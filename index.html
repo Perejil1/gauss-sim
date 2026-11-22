@@ -665,7 +665,7 @@
       }
       function applyBtn() {
         const d = isDark();
-        $("th").textContent = d ? "☀️ Modo claro" : "🌙 Modo oscuro";
+        $("th").textContent = d ? "☀️" : "🌙";
         $("th").setAttribute("aria-pressed", String(d));
       }
       try {
